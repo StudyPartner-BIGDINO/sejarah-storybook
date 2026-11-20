@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <title>F1 Bab 1: Mengenali Sejarah · Maksud Sejarah 有声动画绘本</title>
+  <style>
+    :root {
+      --hl-yellow: #fff04b;
+      --pink-main: #ec2f87;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      background: #140d22;
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      user-select: none;
+    }
+
+    .book-viewport {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      perspective: 2600px;
+      overflow: hidden;
+    }
+
+    .book-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+
+    /* Aspect-locked 16:9 Stage on Desktop so % prop coordinates match 100% accurately */
+    .spreads-container {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: #120b1e;
+    }
+
+    .spread {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform-origin: left center;
+      transition: transform 0.68s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.42s ease;
+      overflow: hidden;
+    }
+
+    .spread.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: rotateY(0deg);
+      z-index: 3;
+    }
+
+    .spread.flipped-left {
+      opacity: 0;
+      transform: rotateY(-80deg);
+      z-index: 2;
+    }
+
+    .spread.upcoming-right {
+      opacity: 0;
+      transform: rotateY(14deg) scale(0.985);
+      z-index: 1;
+    }
+
+    .spread-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      z-index: 1;
+      transition: transform 10s ease-out;
+    }
+
+    .spread.active .spread-bg {
+      transform: scale(1.018);
+    }
+
+    /* Layered 3D Pop-Up Story Props */
+    .props-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .prop-item {
+      position: absolute;
+      transform: translate(-50%, -50%) scale(0.12) translateY(32px);
+      opacity: 0;
+      filter: drop-shadow(0 10px 18px rgba(10, 6, 24, 0.52));
+      transition:
+        transform 0.62s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.34s ease,
+        filter 0.5s ease;
+      will-change: transform, opacity;
+    }
+
+    .prop-item.popped {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) translateY(0px);
+      animation: propFloat 3.6s ease-in-out 0.65s infinite alternate;
+    }
+
+    .prop-item.popped-glow {
+      filter:
+        drop-shadow(0 0 18px rgba(255, 230, 100, 0.85))
+        drop-shadow(0 10px 20px rgba(10, 6, 24, 0.52));
+    }
+
+    @keyframes propFloat {
+      from { transform: translate(-50%, -50%) scale(1) translateY(0px); }
+      to   { transform: translate(-50%, -50%) scale(1.025) translateY(-7px); }
+    }
+
+    /* Sparkle Ring Burst when Prop Pops In */
+    .pop-sparkle {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 238, 120, 0.92);
+      box-shadow: 0 0 24px rgba(255, 215, 64, 0.9);
+      transform: translate(-50%, -50%) scale(0.2);
+      opacity: 0.95;
+      pointer-events: none;
+      z-index: 5;
+      animation: ringBurst 0.65s ease-out forwards;
+    }
+
+    @keyframes ringBurst {
+      0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0.95; }
+      100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0; }
+    }
+
+    .bottom-vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      background: linear-gradient(
+        180deg,
+        rgba(12, 8, 20, 0.24) 0%,
+        rgba(12, 8, 20, 0) 12%,
+        rgba(12, 8, 20, 0) 74%,
+        rgba(16, 11, 26, 0.70) 100%
+      );
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Top Minimal Chapter & Audio Tool Bar */
+    .top-bar {
+      position: absolute;
+      top: max(1.8%, env(safe-area-inset-top));
+      left: max(2%, env(safe-area-inset-left));
+      right: max(2%, env(safe-area-inset-right));
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+      gap: 10px;
+    }
+
+    .chapter-nav {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(20, 14, 32, 0.68);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      pointer-events: auto;
+      overflow-x: auto;
+      scrollbar-width: none;
+      max-width: 100%;
+    }
+
+    .chapter-nav::-webkit-scrollbar { display: none; }
+
+    .ch-btn {
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: clamp(11px, 0.92vw, 13px);
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .ch-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .ch-btn.current {
+      background: linear-gradient(135deg, #ff3d9a, #ff8a00);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(255, 61, 154, 0.45);
+    }
+
+    .top-right-tools {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      pointer-events: auto;
+      flex-shrink: 0;
+    }
+
+    .page-pill {
+      background: rgba(20, 14, 32, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #ffe082;
+      font-weight: 800;
+      font-size: clamp(11px, 0.95vw, 13px);
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 224, 130, 0.35);
+      white-space: nowrap;
+    }
+
+    .tool-btn {
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(20, 14, 32, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: clamp(11px, 0.92vw, 12.8px);
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .tool-btn:hover { background: rgba(255, 255, 255, 0.22); }
+    .tool-btn.bgm-on { border-color: #80cbc4; color: #a7ffeb; }
+
+    /* Cover Header Pill */
+    .cover-floating-header {
+      position: absolute;
+      top: 8.5%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 8;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(106, 27, 154, 0.9), rgba(216, 27, 96, 0.9));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2.5px solid #ffd54f;
+      border-radius: 999px;
+      padding: 8px 28px 10px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
+      max-width: 92%;
+      transition: opacity 0.3s ease;
+    }
+
+    .cover-floating-bm {
+      font-size: clamp(14px, 1.8vw, 26px);
+      font-weight: 900;
+      color: #ffeb3b;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+      line-height: 1.2;
+    }
+
+    .cover-floating-zh {
+      display: inline-block;
+      margin-top: 3px;
+      background: #ff2e88;
+      color: #fff;
+      font-size: clamp(11.5px, 1.15vw, 16.5px);
+      font-weight: 800;
+      padding: 2px 14px;
+      border-radius: 999px;
+    }
+
+    /* Left & Right Page Turn Click Zones */
+    .edge-nav {
+      position: absolute;
+      top: 14%;
+      bottom: 18%;
+      width: 5%;
+      min-width: 40px;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0.55;
+      transition: opacity 0.2s ease;
+    }
+
+    .edge-nav:hover { opacity: 1; }
+    .edge-prev { left: max(0.7%, env(safe-area-inset-left)); }
+    .edge-next { right: max(0.7%, env(safe-area-inset-right)); }
+
+    .edge-circle {
+      width: clamp(34px, 3vw, 46px);
+      height: clamp(34px, 3vw, 46px);
+      border-radius: 50%;
+      background: rgba(20, 14, 32, 0.68);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(14px, 1.4vw, 20px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
+    }
+
+    .edge-nav.disabled {
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    .mobile-swipe-hint { display: none; }
+
+    /* Unified Bottom Story Ribbon + Audio Dock */
+    .storybook-ribbon {
+      position: absolute;
+      bottom: max(1.6%, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 25;
+      width: min(95%, 1260px);
+      background: rgba(255, 252, 246, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 2.5px solid rgba(255, 255, 255, 0.95);
+      border-radius: 22px;
+      padding: clamp(8px, 1.2vh, 13px) clamp(14px, 1.6vw, 22px);
+      box-shadow: 0 14px 38px rgba(10, 6, 20, 0.48);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: clamp(12px, 1.4vw, 20px);
+      transition: opacity 0.3s ease;
+    }
+
+    .art-only .storybook-ribbon .story-text-col,
+    .art-only .cover-floating-header,
+    .art-only .bottom-vignette {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .art-only .storybook-ribbon {
+      width: auto;
+      background: rgba(22, 16, 34, 0.84);
+      border-color: rgba(255, 255, 255, 0.25);
+      padding: 7px 14px;
+    }
+
+    .art-only .storybook-ribbon .story-text-col { display: none; }
+    .art-only .time-label, .art-only .ctrl-chip {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .story-text-col {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .story-top-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: clamp(11px, 0.95vw, 13.5px);
+      font-weight: 900;
+      color: #fff;
+      padding: 2px 11px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .tag-cover { background: linear-gradient(135deg, #7b1fa2, #ec2f87); }
+    .tag-def   { background: linear-gradient(135deg, #c2185b, #ff5722); }
+    .tag-bm    { background: linear-gradient(135deg, #00796b, #26a69a); }
+    .tag-mem   { background: linear-gradient(135deg, #e65100, #ff2e88); }
+    .tag-eng   { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+    .tag-grk   { background: linear-gradient(135deg, #4527a0, #7e57c2); }
+
+    .story-main-line {
+      font-size: clamp(13.5px, 1.18vw, 17.5px);
+      font-weight: 800;
+      color: #1f172b;
+      line-height: 1.45;
+    }
+
+    .story-sub-line {
+      font-size: clamp(12px, 1.02vw, 14.5px);
+      font-weight: 600;
+      color: #4f4560;
+      line-height: 1.38;
+    }
+
+    .hl {
+      background: var(--hl-yellow);
+      color: #111;
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-weight: 900;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+
+    .paspjk-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 5px;
+      margin-top: 3px;
+    }
+
+    .pp-pill {
+      border-radius: 9px;
+      padding: 3px 6px;
+      text-align: center;
+      font-size: clamp(10.5px, 0.88vw, 12.8px);
+      font-weight: 800;
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      color: #2b1d12;
+    }
+
+    .pp-pill b { color: #d81b60; }
+
+    .audio-controls-col {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .play-btn {
+      border: none;
+      background: linear-gradient(135deg, #ff2e88, #ff7b54);
+      color: #fff;
+      font-weight: 800;
+      font-size: clamp(12.5px, 1.05vw, 15px);
+      padding: 9px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+      box-shadow: 0 5px 15px rgba(255, 46, 136, 0.4);
+      transition: transform 0.15s ease;
+    }
+
+    .play-btn:active { transform: scale(0.97); }
+    .play-btn.playing {
+      background: linear-gradient(135deg, #00c853, #009688);
+      box-shadow: 0 5px 15px rgba(0, 200, 83, 0.38);
+    }
+
+    .eq-bars {
+      display: none;
+      align-items: flex-end;
+      gap: 2px;
+      height: 13px;
+    }
+
+    .play-btn.playing .eq-bars { display: inline-flex; }
+    .eq-bars span {
+      width: 2.8px;
+      background: #fff;
+      border-radius: 2px;
+      animation: eqBounce 0.65s infinite ease-in-out alternate;
+    }
+    .eq-bars span:nth-child(1) { height: 5px; animation-delay: 0s; }
+    .eq-bars span:nth-child(2) { height: 12px; animation-delay: 0.18s; }
+    .eq-bars span:nth-child(3) { height: 7px; animation-delay: 0.34s; }
+
+    @keyframes eqBounce {
+      from { height: 4px; }
+      to   { height: 13px; }
+    }
+
+    .mini-progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      width: clamp(76px, 7.2vw, 112px);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(30, 20, 48, 0.15);
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff2e88, #ff9100);
+      border-radius: 999px;
+      transition: width 0.1s linear;
+    }
+
+    .time-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #5c526e;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ctrl-chip {
+      border: 1.5px solid rgba(30, 20, 48, 0.16);
+      background: rgba(255, 255, 255, 0.82);
+      color: #2b213a;
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 5px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .ctrl-chip.on {
+      background: #fff3cd;
+      border-color: #ffb300;
+      color: #b26a00;
+    }
+
+    /* =====================================================================
+       MOBILE PORTRAIT MODE (上画下书，16:9 舞台不裁切，道具跳出坐标 100% 精准对齐！)
+       ===================================================================== */
+    @media (max-width: 860px) and (orientation: portrait) {
+      .book-stage {
+        display: flex;
+        flex-direction: column;
+        background: radial-gradient(circle at top, #2c1a42 0%, #140d20 100%);
+        padding: max(8px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));
+        gap: 8px;
+      }
+
+      .top-bar {
+        position: relative;
+        top: auto; left: auto; right: auto;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+
+      .top-right-tools { justify-content: space-between; }
+      #artToggleBtn { display: none; }
+
+      .spreads-container {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+        border: 2px solid rgba(255, 224, 130, 0.35);
+        flex-shrink: 0;
+      }
+
+      .bottom-vignette { display: none; }
+
+      .cover-floating-header {
+        top: 5%;
+        padding: 4px 14px 5px;
+        border-width: 1.5px;
+      }
+      .cover-floating-bm { font-size: 11.5px; }
+      .cover-floating-zh { font-size: 9.8px; padding: 1px 9px; }
+
+      .edge-nav { display: none; }
+
+      .mobile-swipe-hint {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 0 4px;
+        flex-shrink: 0;
+      }
+
+      .mobile-nav-btns { display: flex; gap: 7px; }
+      .m-turn-btn {
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+        font-size: 11.5px;
+        font-weight: 800;
+        padding: 4px 11px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+      .m-turn-btn:disabled { opacity: 0.3; }
+
+      .storybook-ribbon {
+        position: relative;
+        bottom: auto; left: auto;
+        transform: none;
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: space-between;
+        padding: 13px 14px;
+        border-radius: 18px;
+        gap: 9px;
+      }
+
+      .story-text-col {
+        overflow-y: auto;
+        gap: 6px;
+      }
+
+      .tag-badge { font-size: 11.5px; padding: 3px 11px; }
+      .story-main-line { font-size: 15px; line-height: 1.52; }
+      .story-sub-line { font-size: 13px; line-height: 1.48; }
+
+      .paspjk-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .audio-controls-col {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding-top: 9px;
+        border-top: 1.5px solid rgba(30, 20, 48, 0.1);
+        gap: 7px;
+      }
+
+      .play-btn { padding: 9px 16px; font-size: 13.5px; }
+      .mini-progress-wrap { flex: 1; min-width: 85px; }
+    }
+
+    /* MOBILE LANDSCAPE MODE */
+    @media (max-height: 520px) and (orientation: landscape) {
+      .top-bar { top: 2%; }
+      .chapter-nav { padding: 3px 8px; gap: 4px; }
+      .ch-btn { font-size: 10px; padding: 3px 8px; }
+      .page-pill, .tool-btn { font-size: 10px; padding: 3px 9px; }
+      .cover-floating-header { top: 10%; padding: 3px 14px 4px; }
+      .cover-floating-bm { font-size: 12.5px; }
+      .cover-floating-zh { font-size: 10px; }
+      .storybook-ribbon { bottom: 1.4%; padding: 5px 12px; border-radius: 14px; gap: 9px; }
+      .tag-badge { font-size: 9.8px; padding: 1px 8px; }
+      .story-main-line { font-size: 11.8px; line-height: 1.28; }
+      .story-sub-line { font-size: 10.5px; line-height: 1.22; }
+      .play-btn { padding: 6px 12px; font-size: 11.5px; }
+      .ctrl-chip { padding: 3px 8px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="book-viewport">
+  <div class="book-stage" id="bookStage">
+
+    <div class="top-bar">
+      <div class="chapter-nav">
+        <button class="ch-btn current" data-group="cover" onclick="goToPage(0)">📖 封面</button>
+        <button class="ch-btn" data-group="def" onclick="goToPage(1)">什么是历史 (2页)</button>
+        <button class="ch-btn" data-group="origin" onclick="goToPage(3)">三大词源</button>
+        <button class="ch-btn" data-group="bm" onclick="goToPage(4)">① 马来文 & PAS PJK (3页)</button>
+        <button class="ch-btn" data-group="eng" onclick="goToPage(7)">② 英文</button>
+        <button class="ch-btn" data-group="grk" onclick="goToPage(8)">③ 希腊文</button>
+        <button class="ch-btn" data-group="end" onclick="goToPage(9)">🎯 总结预告</button>
+      </div>
+
+      <div class="top-right-tools">
+        <span class="page-pill" id="pageIndicator">第 1 / 10 页</span>
+        <button class="tool-btn bgm-on" id="bgmBtn" onclick="toggleBgm()">🎵 配乐: 开</button>
+        <button class="tool-btn" onclick="replayPopAnimation()" title="重新播放本页图案跳出动画">✨ 重播动画</button>
+        <button class="tool-btn" id="artToggleBtn" onclick="toggleArtOnly()">🖼 纯享全图</button>
+        <button class="tool-btn" onclick="toggleFullScreen()">⛶ 全屏</button>
+      </div>
+    </div>
+
+    <div class="spreads-container" id="spreadsContainer"></div>
+
+    <div class="mobile-swipe-hint">
+      <span>👈 左右滑动翻页 · 图案随讲解逐个跳出</span>
+      <div class="mobile-nav-btns">
+        <button class="m-turn-btn" id="mBtnPrev" onclick="prevPage()">上一页</button>
+        <button class="m-turn-btn" id="mBtnNext" onclick="nextPage()">下一页</button>
+      </div>
+    </div>
+
+    <div class="edge-nav edge-prev disabled" id="btnPrev" onclick="prevPage()" title="上一页 (←)">
+      <div class="edge-circle">❮</div>
+    </div>
+    <div class="edge-nav edge-next" id="btnNext" onclick="nextPage()" title="下一页 (→)">
+      <div class="edge-circle">❯</div>
+    </div>
+
+    <div class="storybook-ribbon" id="storybookRibbon">
+      <div class="story-text-col" id="storyTextCol"></div>
+
+      <div class="audio-controls-col">
+        <button class="play-btn" id="playBtn" onclick="toggleNarration()">
+          <span id="playIcon">▶</span>
+          <span id="playLabel">听老师讲</span>
+          <span class="eq-bars"><span></span><span></span><span></span></span>
+        </button>
+
+        <div class="mini-progress-wrap">
+          <div class="progress-bar" onclick="seekAudio(event)">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <span class="time-label" id="timeLabel">00:00 / 00:00</span>
+        </div>
+
+        <button class="ctrl-chip on" id="autoNextBtn" onclick="toggleAutoNext()" title="讲完本页自动翻到下一页">
+          🔁 自动翻页
+        </button>
+
+        <select class="ctrl-chip" id="speedSelect" onchange="changeSpeed()" title="调节语速">
+          <option value="0.9">0.9x</option>
+          <option value="1" selected>1.0x</option>
+          <option value="1.15">1.15x</option>
+        </select>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<audio id="teacherAudio" preload="auto" playsinline></audio>
+<audio id="bgmAudio" src="audio/bgm_storybook.mp3" loop preload="auto" playsinline></audio>
+
+<script>
+  const PAGES = [{"group": "cover", "tagClass": "tag-cover", "tagText": "📚 F1 Bab 1 · Mengenali Sejarah", "mainHtml": "欢迎跟着万能教 Jack 老师探索：<span class=\"hl\">Maksud Sejarah（什么是历史？）</span>", "subHtml": "揭开历史的定义、证据研究（bukti）以及马来文、英文与希腊文三大词源秘密！", "bg": "scenes/s01.jpg", "audio": "audio/p01.mp3", "props": [{"src": "props/a1_hourglass.png", "cx": 20, "cy": 56, "w": 17, "cue": 0.6, "sfx": "chime", "glow": true}, {"src": "props/a2_royal_scroll.png", "cx": 79, "cy": 55, "w": 18, "cue": 5.94, "sfx": "scroll"}]}, {"group": "def", "tagClass": "tag-def", "tagText": "🔍 Maksud Sejarah · 定义 1", "mainHtml": "什么是历史？ • Sejarah ialah <span class=\"hl\">peristiwa yang benar-benar berlaku pada masa lalu</span>.", "subHtml": "历史就是「以前真正发生过的事情」——神话与虚构童话都不算历史哦！", "bg": "scenes/s02.jpg", "audio": "audio/p02.mp3", "props": [{"src": "props/a3_real_ship_ok.png", "cx": 20, "cy": 44, "w": 22, "cue": 3.75, "sfx": "ding", "glow": true}, {"src": "props/a4_myth_dragon_no.png", "cx": 80, "cy": 44, "w": 22, "cue": 9.33, "sfx": "poof"}]}, {"group": "def", "tagClass": "tag-def", "tagText": "🏺 证据与历史学家 · 定义 2", "mainHtml": "• Peristiwa sejarah <span class=\"hl\">dikaji berdasarkan bukti yang wujud</span>. &nbsp; • <span class=\"hl\">Sejarawan</span> ＝ 历史学家", "subHtml": "所有历史事件都一定要根据真实存在的证据（bukti）来研究，研究历史的学者叫做 Sejarawan！", "bg": "scenes/s03.jpg", "audio": "audio/p03.mp3", "props": [{"src": "props/a5_dig_artifacts.png", "cx": 19, "cy": 64, "w": 21, "cue": 0.9, "sfx": "chime"}, {"src": "props/a6_magnifying_glass.png", "cx": 36, "cy": 36, "w": 17, "cue": 4.56, "sfx": "ding", "glow": true}, {"src": "props/a7_sejarawan_hat_books.png", "cx": 81, "cy": 64, "w": 21, "cue": 9.2, "sfx": "scroll"}]}, {"group": "origin", "tagClass": "tag-cover", "tagText": "🌍 「历史」一词的三大语言由来", "mainHtml": "横跨三大语言的词源寻根：<span class=\"hl\">① 马来文 Sejarah</span> · <span class=\"hl\">② 英文 History</span> · <span class=\"hl\">③ 希腊文 Historia</span>", "subHtml": "看看「历史」这个字在阿拉伯/马来世界、英国与古希腊分别代表什么含义！", "bg": "scenes/s04.jpg", "audio": "audio/p04.mp3", "props": [{"src": "props/a8_arab_emblem.png", "cx": 20, "cy": 46, "w": 20, "cue": 7.08, "sfx": "chime", "glow": true}, {"src": "props/b1_english_emblem.png", "cx": 50, "cy": 22, "w": 18, "cue": 8.28, "sfx": "chime", "glow": true}, {"src": "props/b2_greek_emblem.png", "cx": 80, "cy": 46, "w": 20, "cue": 9.48, "sfx": "chime", "glow": true}]}, {"group": "bm", "tagClass": "tag-bm", "tagText": "① 马来文 Sejarah 的由来", "mainHtml": "马来文的 <span class=\"hl\">Sejarah</span> 源自阿拉伯文（Bahasa Arab），叫做 <span class=\"hl\">Syajaratun</span>！", "subHtml": "Syajaratun 原本像一棵枝繁叶茂的大树，包含树、起源、家谱与家族五大含义。", "bg": "scenes/s05.jpg", "audio": "audio/p05.mp3", "props": [{"src": "props/b3_arab_scroll.png", "cx": 82, "cy": 56, "w": 19, "cue": 1.2, "sfx": "scroll"}, {"src": "props/b4_glowing_tree.png", "cx": 27, "cy": 45, "w": 35, "cue": 5.97, "sfx": "grow", "glow": true}]}, {"group": "bm", "tagClass": "tag-mem", "tagText": "🌟 万能教 Jack 老师口诀：PAS PJK（前半 PAS）", "mainHtml": "体育科目要 PASS！口诀 <span class=\"hl\">PAS PJK</span>：<span class=\"hl\">P</span> = Pokok（树）· <span class=\"hl\">A</span> = Asal usul（起源）· <span class=\"hl\">S</span> = Salasilah（家谱）", "subHtml": "Salasilah 家谱 ＝ 大家族背景图（从阿公阿妈生的孩子、结婚再有的孙子）！", "bg": "scenes/s06.jpg", "audio": "audio/p06.mp3", "props": [{"src": "props/b5_whistle_pass.png", "cx": 65, "cy": 22, "w": 14, "cue": 1.4, "sfx": "whistle", "glow": true}, {"src": "props/b4_glowing_tree.png", "cx": 16, "cy": 48, "w": 24, "cue": 6.12, "sfx": "grow"}, {"src": "props/b6_sprouting_seed.png", "cx": 33, "cy": 64, "w": 17, "cue": 9.12, "sfx": "chime", "glow": true}, {"src": "props/b7_salasilah_family_tree.png", "cx": 81, "cy": 50, "w": 25, "cue": 10.73, "sfx": "ding", "glow": true}]}, {"group": "bm", "tagClass": "tag-mem", "tagText": "🌟 万能教 Jack 老师口诀：PAS PJK（后半 PJK）", "mainHtml": "后半句 <span class=\"hl\">PJK</span>：<span class=\"hl\">P</span> = Pohon（树，跟 Pokok 一样）· <span class=\"hl\">JK</span> = Jurai keturunan（家族）", "subHtml": "<div class=\"paspjk-row\">\n              <div class=\"pp-pill\"><b>P</b> = Pokok 树</div>\n              <div class=\"pp-pill\"><b>A</b> = Asal usul 起源</div>\n              <div class=\"pp-pill\"><b>S</b> = Salasilah 家谱</div>\n              <div class=\"pp-pill\"><b>P</b> = Pohon 树木</div>\n              <div class=\"pp-pill\"><b>JK</b> = Jurai keturunan 家族</div>\n            </div>", "bg": "scenes/s07.jpg", "audio": "audio/p07.mp3", "props": [{"src": "props/b8_pohon_fruit_tree.png", "cx": 18, "cy": 52, "w": 25, "cue": 1.5, "sfx": "grow"}, {"src": "props/c1_keturunan_crest.png", "cx": 68, "cy": 27, "w": 19, "cue": 5.02, "sfx": "scroll", "glow": true}]}, {"group": "eng", "tagClass": "tag-eng", "tagText": "② 英文 History 的由来", "mainHtml": "在英文（Bahasa Inggeris）叫做 <span class=\"hl\">History</span> ＝ <span class=\"hl\">kajian tentang peristiwa lampau</span>.", "subHtml": "意思就是「研究很久以前发生的事」！", "bg": "scenes/s08.jpg", "audio": "audio/p08.mp3", "props": [{"src": "props/c2_popup_ship_castle_book.png", "cx": 22, "cy": 55, "w": 26, "cue": 1.0, "sfx": "scroll", "glow": true}, {"src": "props/c3_pocket_watch_photo.png", "cx": 79, "cy": 54, "w": 23, "cue": 4.24, "sfx": "tick"}]}, {"group": "grk", "tagClass": "tag-grk", "tagText": "③ 希腊文 Yunani 的由来", "mainHtml": "希腊文（<span class=\"hl\">Yunani</span>）叫做 <span class=\"hl\">Historia</span>，意思是「研究」，马来文叫做 <span class=\"hl\">penyelidikan</span>！", "subHtml": "黄金配对秒记：Yunani ➔ Historia ➔ penyelidikan（研究）！", "bg": "scenes/s09.jpg", "audio": "audio/p09.mp3", "props": [{"src": "props/c4_greek_scroll.png", "cx": 45, "cy": 34, "w": 17, "cue": 1.6, "sfx": "scroll"}, {"src": "props/c5_quill_spyglass.png", "cx": 83, "cy": 28, "w": 17, "cue": 7.95, "sfx": "ding", "glow": true}]}, {"group": "end", "tagClass": "tag-cover", "tagText": "🎯 总结 & 下集预告", "mainHtml": "总结：历史都是在学习以前！接下来我们会学习<span class=\"hl\">地点与时间</span>，里面包括了 <span class=\"hl\">DEBALAF</span>，敬请期待！", "subHtml": "本课复习：真实过去的事件 · 根据证据研究（Sejarawan）· Syajaratun (PAS PJK) · History · Historia (penyelidikan)", "bg": "scenes/s10.jpg", "audio": "audio/p10.mp3", "props": [{"src": "props/a6_magnifying_glass.png", "cx": 14, "cy": 34, "w": 15, "cue": 0.45, "sfx": "ding"}, {"src": "props/b4_glowing_tree.png", "cx": 29, "cy": 34, "w": 18, "cue": 1.25, "sfx": "grow"}, {"src": "props/c4_greek_scroll.png", "cx": 21, "cy": 64, "w": 16, "cue": 2.05, "sfx": "scroll"}, {"src": "props/c6_map_pin_compass.png", "cx": 72, "cy": 34, "w": 17, "cue": 4.01, "sfx": "chime"}, {"src": "props/c7_clockwork_gears.png", "cx": 87, "cy": 34, "w": 16, "cue": 4.91, "sfx": "tick"}, {"src": "props/c8_debalaf_chest.png", "cx": 80, "cy": 64, "w": 20, "cue": 6.93, "sfx": "fanfare", "glow": true}]}];
+
+  let currentPage = 0;
+  let autoNext = true;
+  let bgmEnabled = true;
+  let silentTimers = [];
+  let audioCtx = null;
+
+  const audioEl = document.getElementById("teacherAudio");
+  const bgmEl = document.getElementById("bgmAudio");
+  const spreadsContainer = document.getElementById("spreadsContainer");
+  const playBtn = document.getElementById("playBtn");
+  const playIcon = document.getElementById("playIcon");
+  const playLabel = document.getElementById("playLabel");
+  const progressFill = document.getElementById("progressFill");
+  const timeLabel = document.getElementById("timeLabel");
+  const storyTextCol = document.getElementById("storyTextCol");
+
+  function getAudioCtx() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === "suspended") {
+      audioCtx.resume().catch(() => {});
+    }
+    return audioCtx;
+  }
+
+  // Contextual Web Audio Story Sound Effects
+  function playStorySfx(type) {
+    if (!bgmEnabled) return;
+    try {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      const tone = (freq, startOff, dur, gainVal, wave = "sine") => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = wave;
+        osc.frequency.setValueAtTime(freq, now + startOff);
+        g.gain.setValueAtTime(0.0001, now + startOff);
+        g.gain.linearRampToValueAtTime(gainVal, now + startOff + 0.018);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + startOff + dur);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(now + startOff);
+        osc.stop(now + startOff + dur + 0.02);
+      };
+
+      if (type === "ding") {
+        tone(987.77, 0, 0.35, 0.055, "sine");
+        tone(1318.5, 0.07, 0.55, 0.065, "sine");
+      } else if (type === "grow") {
+        [523.25, 659.25, 783.99, 987.77, 1174.66, 1567.98].forEach((f, i) => {
+          tone(f, i * 0.065, 0.45, 0.04, "triangle");
+        });
+      } else if (type === "whistle") {
+        tone(1567.98, 0, 0.11, 0.05, "triangle");
+        tone(1567.98, 0.14, 0.18, 0.055, "triangle");
+        tone(2093.0, 0.28, 0.38, 0.05, "sine");
+      } else if (type === "poof") {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(175, now + 0.28);
+        g.gain.setValueAtTime(0.05, now);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(now); osc.stop(now + 0.32);
+      } else if (type === "scroll") {
+        const bufSize = Math.floor(ctx.sampleRate * 0.16);
+        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) {
+          d[i] = (Math.random() * 2 - 1) * Math.sin((i / bufSize) * Math.PI) * 0.04;
+        }
+        const src = ctx.createBufferSource();
+        const flt = ctx.createBiquadFilter();
+        flt.type = "bandpass";
+        flt.frequency.value = 950;
+        src.buffer = buf;
+        src.connect(flt); flt.connect(ctx.destination);
+        src.start(now);
+        tone(659.25, 0.05, 0.28, 0.035, "triangle");
+      } else if (type === "tick") {
+        tone(1200, 0, 0.06, 0.04, "triangle");
+        tone(880, 0.12, 0.08, 0.035, "triangle");
+        tone(1046.5, 0.24, 0.35, 0.04, "sine");
+      } else if (type === "fanfare") {
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          tone(f, i * 0.08, 0.65, 0.055, "triangle");
+        });
+      } else {
+        // Default magical chime
+        tone(783.99, 0, 0.3, 0.042, "sine");
+        tone(1174.66, 0.08, 0.45, 0.048, "sine");
+      }
+    } catch (e) {}
+  }
+
+  function playPageFlipSound() {
+    if (!bgmEnabled) return;
+    try {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const bufferSize = Math.floor(ctx.sampleRate * 0.12);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.sin((i / bufferSize) * Math.PI) * 0.038;
+      }
+      const noise = ctx.createBufferSource();
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.value = 1150;
+      noise.buffer = buffer;
+      noise.connect(filter);
+      filter.connect(ctx.destination);
+      noise.start();
+    } catch (e) {}
+  }
+
+  function syncBgmVolume() {
+    if (!bgmEnabled) {
+      bgmEl.pause();
+      return;
+    }
+    // Softly duck BGM when Jack Teacher is speaking so voice is 100% clear
+    bgmEl.volume = (!audioEl.paused) ? 0.11 : 0.22;
+    if (bgmEl.paused) {
+      bgmEl.play().catch(() => {});
+    }
+  }
+
+  function toggleBgm() {
+    bgmEnabled = !bgmEnabled;
+    const btn = document.getElementById("bgmBtn");
+    btn.classList.toggle("bgm-on", bgmEnabled);
+    btn.textContent = bgmEnabled ? "🎵 配乐: 开" : "🔇 配乐: 关";
+    syncBgmVolume();
+  }
+
+  // Build all 10 DOM spreads + prop layers once
+  function initSpreadsDOM() {
+    spreadsContainer.innerHTML = PAGES.map((p, idx) => {
+      const coverHeader = idx === 0 ? `
+        <div class="cover-floating-header">
+          <div class="cover-floating-bm">F1 Bab 1: Mengenali Sejarah · Maksud Sejarah</div>
+          <div class="cover-floating-zh">什么是历史？ · 万能教 Jack 老师互动动画绘本</div>
+        </div>` : "";
+
+      const propsHtml = (p.props || []).map((pr, pIdx) => `
+        <img
+          class="prop-item ${pr.glow ? 'popped-glow' : ''}"
+          id="prop_${idx}_${pIdx}"
+          src="${pr.src}"
+          style="left:${pr.cx}%; top:${pr.cy}%; width:${pr.w}%;"
+          alt=""
+        />
+      `).join("");
+
+      return `
+        <section class="spread ${idx === 0 ? 'active' : 'upcoming-right'}" data-page="${idx}" id="spread_${idx}">
+          <img class="spread-bg" src="${p.bg}" alt="" />
+          <div class="bottom-vignette"></div>
+          ${coverHeader}
+          <div class="props-layer" id="propsLayer_${idx}">${propsHtml}</div>
+        </section>
+      `;
+    }).join("");
+  }
+
+  function clearSilentTimers() {
+    silentTimers.forEach((t) => clearTimeout(t));
+    silentTimers = [];
+  }
+
+  function resetPageProps(pageIdx) {
+    const p = PAGES[pageIdx];
+    (p.props || []).forEach((pr, pIdx) => {
+      pr._popped = false;
+      const el = document.getElementById(`prop_${pageIdx}_${pIdx}`);
+      if (el) el.classList.remove("popped");
+    });
+  }
+
+  function triggerPropPop(pageIdx, pIdx, withSfx = true) {
+    const p = PAGES[pageIdx];
+    const pr = p.props[pIdx];
+    if (!pr || pr._popped) return;
+    pr._popped = true;
+
+    const el = document.getElementById(`prop_${pageIdx}_${pIdx}`);
+    const layer = document.getElementById(`propsLayer_${pageIdx}`);
+    if (el) el.classList.add("popped");
+
+    if (layer) {
+      const ring = document.createElement("div");
+      ring.className = "pop-sparkle";
+      ring.style.left = pr.cx + "%";
+      ring.style.top = pr.cy + "%";
+      layer.appendChild(ring);
+      setTimeout(() => ring.remove(), 700);
+    }
+
+    if (withSfx) playStorySfx(pr.sfx || "chime");
+  }
+
+  function scheduleSilentCascade(pageIdx) {
+    clearSilentTimers();
+    resetPageProps(pageIdx);
+    const props = PAGES[pageIdx].props || [];
+    props.forEach((pr, pIdx) => {
+      const delayMs = 520 + pIdx * 720;
+      silentTimers.push(setTimeout(() => {
+        if (currentPage === pageIdx && audioEl.paused) {
+          triggerPropPop(pageIdx, pIdx, true);
+        }
+      }, delayMs));
+    });
+  }
+
+  function replayPopAnimation() {
+    clearSilentTimers();
+    resetPageProps(currentPage);
+    if (!audioEl.paused) {
+      audioEl.currentTime = 0;
+    } else {
+      scheduleSilentCascade(currentPage);
+    }
+  }
+
+  function formatSec(s) {
+    if (!isFinite(s) || s < 0) return "00:00";
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+  }
+
+  function renderPageUI() {
+    document.querySelectorAll(".spread").forEach((el, idx) => {
+      el.classList.remove("active", "flipped-left", "upcoming-right");
+      if (idx === currentPage) el.classList.add("active");
+      else if (idx < currentPage) el.classList.add("flipped-left");
+      else el.classList.add("upcoming-right");
+    });
+
+    const p = PAGES[currentPage];
+    document.querySelectorAll(".ch-btn").forEach((btn) => {
+      btn.classList.toggle("current", btn.dataset.group === p.group);
+    });
+
+    document.getElementById("pageIndicator").textContent = `第 ${currentPage + 1} / ${PAGES.length} 页`;
+    document.getElementById("btnPrev").classList.toggle("disabled", currentPage === 0);
+    document.getElementById("btnNext").classList.toggle("disabled", currentPage === PAGES.length - 1);
+
+    const mPrev = document.getElementById("mBtnPrev");
+    const mNext = document.getElementById("mBtnNext");
+    if (mPrev) mPrev.disabled = currentPage === 0;
+    if (mNext) mNext.disabled = currentPage === PAGES.length - 1;
+
+    storyTextCol.innerHTML = `
+      <div class="story-top-row">
+        <span class="tag-badge ${p.tagClass}">${p.tagText}</span>
+      </div>
+      <div class="story-main-line">${p.mainHtml}</div>
+      <div class="story-sub-line">${p.subHtml}</div>
+    `;
+  }
+
+  function setPlayingUI(isPlaying) {
+    playBtn.classList.toggle("playing", isPlaying);
+    playIcon.textContent = isPlaying ? "⏸" : "▶";
+    playLabel.textContent = isPlaying ? "暂停" : "听老师讲";
+    syncBgmVolume();
+  }
+
+  function stopCurrentAudio() {
+    audioEl.pause();
+    audioEl.currentTime = 0;
+    setPlayingUI(false);
+    progressFill.style.width = "0%";
+    timeLabel.textContent = "00:00 / 00:00";
+  }
+
+  function loadPageAudio(autoPlay = false) {
+    clearSilentTimers();
+    stopCurrentAudio();
+    resetPageProps(currentPage);
+    audioEl.src = PAGES[currentPage].audio;
+    audioEl.playbackRate = parseFloat(document.getElementById("speedSelect").value || "1");
+
+    if (autoPlay) {
+      audioEl.play().then(() => {
+        setPlayingUI(true);
+      }).catch(() => {
+        scheduleSilentCascade(currentPage);
+      });
+    } else {
+      scheduleSilentCascade(currentPage);
+    }
+  }
+
+  function toggleNarration() {
+    getAudioCtx();
+    if (!audioEl.paused) {
+      audioEl.pause();
+      setPlayingUI(false);
+    } else {
+      clearSilentTimers();
+      if (audioEl.currentTime < 0.3) {
+        resetPageProps(currentPage);
+      }
+      if (!audioEl.src) audioEl.src = PAGES[currentPage].audio;
+      audioEl.playbackRate = parseFloat(document.getElementById("speedSelect").value || "1");
+      audioEl.play().then(() => setPlayingUI(true)).catch(() => {});
+    }
+  }
+
+  audioEl.addEventListener("timeupdate", () => {
+    if (audioEl.duration) {
+      const t = audioEl.currentTime;
+      const pct = (t / audioEl.duration) * 100;
+      progressFill.style.width = pct + "%";
+      timeLabel.textContent = formatSec(t) + " / " + formatSec(audioEl.duration);
+
+      // Sync progressive 3D prop pop-ins to exact teacher voice timestamps!
+      const props = PAGES[currentPage].props || [];
+      props.forEach((pr, pIdx) => {
+        if (!pr._popped && t >= pr.cue) {
+          triggerPropPop(currentPage, pIdx, true);
+        }
+      });
+    }
+  });
+
+  audioEl.addEventListener("loadedmetadata", () => {
+    timeLabel.textContent = "00:00 / " + formatSec(audioEl.duration);
+  });
+
+  audioEl.addEventListener("ended", () => {
+    // Ensure any remaining props on the page have popped
+    (PAGES[currentPage].props || []).forEach((_, pIdx) => triggerPropPop(currentPage, pIdx, false));
+    setPlayingUI(false);
+    progressFill.style.width = "100%";
+    if (autoNext && currentPage < PAGES.length - 1) {
+      setTimeout(() => goToPage(currentPage + 1, true), 650);
+    }
+  });
+
+  function seekAudio(e) {
+    if (!audioEl.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    audioEl.currentTime = ratio * audioEl.duration;
+  }
+
+  function toggleAutoNext() {
+    autoNext = !autoNext;
+    const btn = document.getElementById("autoNextBtn");
+    btn.classList.toggle("on", autoNext);
+    btn.textContent = autoNext ? "🔁 自动翻页" : "⏹ 单页播放";
+  }
+
+  function changeSpeed() {
+    audioEl.playbackRate = parseFloat(document.getElementById("speedSelect").value || "1");
+  }
+
+  function goToPage(idx, autoPlayAfterFlip = false) {
+    if (idx < 0 || idx >= PAGES.length || idx === currentPage) return;
+    getAudioCtx();
+    currentPage = idx;
+    playPageFlipSound();
+    renderPageUI();
+    loadPageAudio(autoPlayAfterFlip);
+  }
+
+  function nextPage() {
+    if (currentPage < PAGES.length - 1) goToPage(currentPage + 1, false);
+  }
+
+  function prevPage() {
+    if (currentPage > 0) goToPage(currentPage - 1, false);
+  }
+
+  function toggleArtOnly() {
+    const stage = document.getElementById("bookStage");
+    const isArt = stage.classList.toggle("art-only");
+    document.getElementById("artToggleBtn").textContent = isArt ? "📖 显示字幕条" : "🖼 纯享全图";
+  }
+
+  function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  // Touch Swipe Left/Right on Mobile
+  let touchStartX = 0;
+  let touchStartY = 0;
+  spreadsContainer.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  spreadsContainer.addEventListener("touchend", (e) => {
+    if (e.changedTouches.length === 1) {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+        if (dx < 0) nextPage();
+        else prevPage();
+      }
+    }
+  }, { passive: true });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") nextPage();
+    else if (e.key === "ArrowLeft") prevPage();
+    else if (e.key === " ") {
+      e.preventDefault();
+      toggleNarration();
+    }
+  });
+
+  initSpreadsDOM();
+  renderPageUI();
+  loadPageAudio(false);
+</script>
+</body>
+</html>
